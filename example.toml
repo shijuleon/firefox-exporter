@@ -1,0 +1,5 @@
+working_directory = "/home/shiju/.config/firefox_exporter"
+
+[profile.alpha]
+firefox_path = "/home/shiju/.mozilla/firefox/xxxxxx.alpha"
+state = "/home/shiju/firefox_sync/profiles/alpha/state.json"
