@@ -1,5 +1,5 @@
 [package]
-name = "firefox-sync"
+name = "firefox-exporter"
 version = "0.1.0"
 authors = ["Shiju"]
 edition = "2018"

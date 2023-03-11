@@ -69,6 +69,7 @@ struct Profile {
 #[derive(Debug)]
 struct MozPlaces {
   url: String,
+  title: String,
 }
 
 #[derive(Debug)]
@@ -82,6 +83,7 @@ struct MozHistoryVisits {
 #[derive(Debug, Serialize, Deserialize)]
 struct HistoryEntry {
   date: String,
+  title: String,
   url: String,
   visit_date: i64,
 }
@@ -138,16 +140,16 @@ impl Context {
 }
 
 impl Profile {
-  fn get_place_entry(&self, place_id: u32) -> String {
+  fn get_place_entry(&self, place_id: u32) -> MozPlaces {
     let conn = Connection::open(&self.db_path).unwrap();
     let mut stmt = conn
-      .prepare("SELECT url FROM moz_places where id = :place_id")
+      .prepare("SELECT url, title FROM moz_places where id = :place_id")
       .unwrap();
     let place_iter = stmt
-      .query_map(params![&place_id], |row| Ok(MozPlaces { url: row.get(0)? }))
+      .query_map(params![&place_id], |row| Ok(MozPlaces { url: row.get(0)?, title: row.get(1).unwrap_or("".to_string()) }))
       .unwrap();
 
-    return place_iter.take(1).next().unwrap().unwrap().url;
+    return place_iter.take(1).next().unwrap().unwrap();
   }
 
   fn get_history(&self, from_id: u64) -> Vec<HistoryEntry> {
@@ -173,7 +175,8 @@ impl Profile {
     for visit in history_iter {
       let entry = visit.unwrap();
       history_entries.push(HistoryEntry {
-        url: self.get_place_entry(entry.place_id),
+        url: self.get_place_entry(entry.place_id).url,
+        title: self.get_place_entry(entry.place_id).title,
         visit_date: entry.visit_date,
         date: Local
           .timestamp(
